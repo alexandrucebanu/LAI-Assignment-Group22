@@ -1,9 +1,10 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
+import numpy as np
 import re
-# Read data
-df = pd.read_csv('token_nationality_subset.csv')
 
+# Read data
+df = pd.read_csv('train_split_2_Ambra.csv')
 
 
 def create_tf_idf(data, text_column, max_features=10000, min_df=2, max_df=0.95):
@@ -30,12 +31,10 @@ def create_tf_idf(data, text_column, max_features=10000, min_df=2, max_df=0.95):
     tfidf_matrix = vectorizer.fit_transform(data[text_column])
     return tfidf_matrix, vectorizer.get_feature_names_out()
 
+
 tfidf_matrix, feature_names = create_tf_idf(df, 'post', max_features=10000)
 print("Sparse TF-IDF Matrix:", tfidf_matrix)
 print("Feature Names:", feature_names[:10])  # Show first 10 features
-
-
-import numpy as np
 
 # Convert sparse matrix to dense format (for a small subset of rows)
 dense_tfidf = tfidf_matrix[:10].toarray()  # Only first 10 rows for evaluation
@@ -47,15 +46,11 @@ for doc_id, row in enumerate(dense_tfidf):
     print(f"Document {doc_id + 1} top terms:", top_terms)
 
 
-
-
-
-import pandas as pd
-import re
-
-def remove_nationalities_cities_countries_and_urls(df_text, text_column, df_nationalities, nationality_column, df_countries, country_column, df_city, city_column):
+def remove_nationalities_cities_countries_and_urls(df_text, text_column, df_nationalities, nationality_column,
+                                                   df_countries, country_column, df_city, city_column):
     """
-    Removes all instances of nationalities, countries, cities, formatted URLs, and hyperlinks from a specified text column in a dataframe.
+    Removes all instances of nationalities, countries, cities, markdown, formatted URLs, and hyperlinks from a specified
+    text column in a dataframe.
 
     Parameters:
     - df_text (pd.DataFrame): The dataframe containing the text to clean.
@@ -86,24 +81,23 @@ def remove_nationalities_cities_countries_and_urls(df_text, text_column, df_nati
     # unwanted_patterns = r'(?:&[a-zA-Z]+(?:;[a-zA-Z]+;)?|\burl\b|[\^|>]|---|\s{2,})'
     # Define regex patterns as individual components
     patterns = [
-        r'http[s]?://\S+'  # Standard URLs
         r'&[a-zA-Z]+(?:;[a-zA-Z]+;)?',  # HTML entities like &nbsp; or &amp;nbsp;
         r'\burl\b',  # Standalone "url"
         r'[\^|>]',  # Symbols: ^, |, >
         r'---',  # Three hyphens ---
         r'\s{2,}',  # Two or more spaces
 
-        # Markdown formatting
-        r'\*\*\*([^*]+)\*\*\*',  # Bold + Italic ***text***
-        r'___([^_]+)___',  # Bold + Italic ___text___
-        r'\*\*([^*]+)\*\*',  # Bold **text**
-        r'__([^_]+)__',  # Bold __text__
-        r'\*([^*]+)\*',  # Italic *text*
-        r'_([^_]+)_',  # Italic _text_
-        r'~~([^~]+)~~',  # Strikethrough ~~text~~
+        # Remove only the markdown symbols
+        r'\*\*\*',  # Bold + Italic symbols ***
+        r'___',  # Bold + Italic symbols ___
+        r'\*\*',  # Bold symbols **
+        r'__',  # Bold symbols __
+        r'\*',  # Italic symbols *
+        r'_',  # Italic symbols _
+        r'~~',  # Strikethrough symbols ~~
 
         # Spoiler and subreddit/user mentions
-        r'>!([^!]+)!<',  # Spoiler >!text!<
+        r'>!|!<',  # Spoiler markers >! and !<
         r'r/([^ ]+)',  # Subreddit r/subreddit
         r'u/([^ ]+)',  # User mention u/username
 
@@ -112,7 +106,7 @@ def remove_nationalities_cities_countries_and_urls(df_text, text_column, df_nati
         r'\d+\.\s+',  # Ordered list items: 1. 2. 3.
 
         # Non-ASCII characters
-        r'[^\x00-\x7F]+'  # Non-ASCII characters
+        r'\b\S*[^\x00-\x7F]\S*\b'  # Words with non-ASCII characters in them
     ]
 
     # Combine all patterns into a single regex
@@ -124,7 +118,7 @@ def remove_nationalities_cities_countries_and_urls(df_text, text_column, df_nati
     df_result['cleaned_text'] = (
         df_result[text_column]
         .str.replace(unwanted_patterns, '', regex=True)  # Remove url and other artifacts, or text irregularities,
-                                                         # as well as formatted links
+        # as well as formatted links
         .str.replace(terms_pattern, '', regex=True)  # Remove terms (nationalities, countries, cities)
         .str.strip()
     )
@@ -143,7 +137,6 @@ def remove_nationalities_cities_countries_and_urls(df_text, text_column, df_nati
 df_nationalities = pd.read_csv('CH_Nationality_List_20171130_v1.csv')
 df_countries = pd.read_csv('worldcities.csv')
 
-
 # Call the function
 cleaned_df = remove_nationalities_cities_countries_and_urls(
     df_text=df,
@@ -156,4 +149,4 @@ cleaned_df = remove_nationalities_cities_countries_and_urls(
     city_column='city'
 )
 
-cleaned_df.to_csv('cleaned_data.csv')
+cleaned_df.to_csv('cleaned_train_split_2_Ambra.csv')
