@@ -50,9 +50,12 @@ for doc_id, row in enumerate(dense_tfidf):
 
 
 
-def remove_nationalities_and_countries(df_text, text_column, df_nationalities, nationality_column, df_countries, country_column, df_city, city_column):
+import pandas as pd
+import re
+
+def remove_nationalities_cities_countries_and_urls(df_text, text_column, df_nationalities, nationality_column, df_countries, country_column, df_city, city_column):
     """
-    Removes all instances of nationalities, countries, and cities from a specified text column in a dataframe.
+    Removes all instances of nationalities, countries, cities, formatted URLs, and hyperlinks from a specified text column in a dataframe.
 
     Parameters:
     - df_text (pd.DataFrame): The dataframe containing the text to clean.
@@ -66,7 +69,7 @@ def remove_nationalities_and_countries(df_text, text_column, df_nationalities, n
 
     Returns:
     - pd.DataFrame: A copy of the input dataframe with new columns:
-        - `cleaned_text`: The processed text with terms removed.
+        - `cleaned_text`: The processed text with terms and patterns removed.
         - `original_word_count`: Word count of the original text.
         - `cleaned_word_count`: Word count of the cleaned text.
         - `word_count_difference`: Difference in word counts.
@@ -79,11 +82,21 @@ def remove_nationalities_and_countries(df_text, text_column, df_nationalities, n
     ]).unique()
     terms_pattern = r'\b(' + '|'.join(map(re.escape, terms_to_remove)) + r')\b'
 
+    # Patterns to remove:
+    url_pattern = r'http[s]?://\S+'  # Standard URLs
+    unwanted_patterns = r'(?:&[a-zA-Z]+(?:;[a-zA-Z]+;)?|\burl\b|[\^|>]|---|\s{2,})'
+
     # Create a copy of the original dataframe to avoid modifying it
     df_result = df_text.copy()
 
-    # Clean the text column by removing the specified terms
-    df_result['cleaned_text'] = df_result[text_column].str.replace(terms_pattern, '', regex=True).str.strip()
+    # Clean the text column
+    df_result['cleaned_text'] = (
+        df_result[text_column]
+        .str.replace(unwanted_patterns, '', regex=True)  # Remove url and other artifacts and formatted links
+        .str.replace(url_pattern, '', regex=True) # Remove links/urls
+        .str.replace(terms_pattern, '', regex=True)  # Remove terms (nationalities, countries, cities)
+        .str.strip()
+    )
 
     # Calculate word counts before and after cleaning
     df_result['original_word_count'] = df_result[text_column].str.split().str.len()
@@ -96,6 +109,7 @@ def remove_nationalities_and_countries(df_text, text_column, df_nationalities, n
 
 
 
+
 # Import data
 df_nationalities = pd.read_csv('CH_Nationality_List_20171130_v1.csv')
 df_countries = pd.read_csv('worldcities.csv')
@@ -103,7 +117,7 @@ df_countries = pd.read_csv('worldcities.csv')
 
 
 # Call the function
-cleaned_df = remove_nationalities_and_countries(
+cleaned_df = remove_nationalities_cities_countries_and_urls(
     df_text=df,
     text_column='post',
     df_nationalities=df_nationalities,
