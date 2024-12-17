@@ -83,17 +83,48 @@ def remove_nationalities_cities_countries_and_urls(df_text, text_column, df_nati
     terms_pattern = r'\b(' + '|'.join(map(re.escape, terms_to_remove)) + r')\b'
 
     # Patterns to remove:
-    url_pattern = r'http[s]?://\S+'  # Standard URLs
-    unwanted_patterns = r'(?:&[a-zA-Z]+(?:;[a-zA-Z]+;)?|\burl\b|[\^|>]|---|\s{2,})'
+    # unwanted_patterns = r'(?:&[a-zA-Z]+(?:;[a-zA-Z]+;)?|\burl\b|[\^|>]|---|\s{2,})'
+    # Define regex patterns as individual components
+    patterns = [
+        r'http[s]?://\S+'  # Standard URLs
+        r'&[a-zA-Z]+(?:;[a-zA-Z]+;)?',  # HTML entities like &nbsp; or &amp;nbsp;
+        r'\burl\b',  # Standalone "url"
+        r'[\^|>]',  # Symbols: ^, |, >
+        r'---',  # Three hyphens ---
+        r'\s{2,}',  # Two or more spaces
 
+        # Markdown formatting
+        r'\*\*\*([^*]+)\*\*\*',  # Bold + Italic ***text***
+        r'___([^_]+)___',  # Bold + Italic ___text___
+        r'\*\*([^*]+)\*\*',  # Bold **text**
+        r'__([^_]+)__',  # Bold __text__
+        r'\*([^*]+)\*',  # Italic *text*
+        r'_([^_]+)_',  # Italic _text_
+        r'~~([^~]+)~~',  # Strikethrough ~~text~~
+
+        # Spoiler and subreddit/user mentions
+        r'>!([^!]+)!<',  # Spoiler >!text!<
+        r'r/([^ ]+)',  # Subreddit r/subreddit
+        r'u/([^ ]+)',  # User mention u/username
+
+        # List indicators
+        r'^\s*[-*]\s+',  # Unordered list items: - or *
+        r'\d+\.\s+',  # Ordered list items: 1. 2. 3.
+
+        # Non-ASCII characters
+        r'[^\x00-\x7F]+'  # Non-ASCII characters
+    ]
+
+    # Combine all patterns into a single regex
+    unwanted_patterns = '|'.join(patterns)
     # Create a copy of the original dataframe to avoid modifying it
     df_result = df_text.copy()
 
     # Clean the text column
     df_result['cleaned_text'] = (
         df_result[text_column]
-        .str.replace(unwanted_patterns, '', regex=True)  # Remove url and other artifacts and formatted links
-        .str.replace(url_pattern, '', regex=True) # Remove links/urls
+        .str.replace(unwanted_patterns, '', regex=True)  # Remove url and other artifacts, or text irregularities,
+                                                         # as well as formatted links
         .str.replace(terms_pattern, '', regex=True)  # Remove terms (nationalities, countries, cities)
         .str.strip()
     )
@@ -108,12 +139,9 @@ def remove_nationalities_cities_countries_and_urls(df_text, text_column, df_nati
     return df_result
 
 
-
-
 # Import data
 df_nationalities = pd.read_csv('CH_Nationality_List_20171130_v1.csv')
 df_countries = pd.read_csv('worldcities.csv')
-
 
 
 # Call the function
