@@ -2,13 +2,13 @@ import pandas as pd
 from collections import defaultdict, Counter
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-def heuristic_predict(df, text_column, label_column, min_freq=2):
+def heuristic_predict(df, token_column, label_column, min_freq=1):
     """
     Predict labels based on word frequencies per label using a heuristic approach.
 
     Parameters:
     - df (pd.DataFrame): DataFrame containing the text and labels.
-    - text_column (str): Column in df containing the text data.
+    - token_column (str): Column in df containing the token data.
     - label_column (str): Column in df containing the labels.
     - min_freq (int): Minimum frequency for a word to be considered relevant.
 
@@ -20,8 +20,8 @@ def heuristic_predict(df, text_column, label_column, min_freq=2):
     label_word_counts = defaultdict(Counter)
     for _, row in df.iterrows():
         label = row[label_column]
-        words = row[text_column].split()
-        label_word_counts[label].update(words)
+        tokens = row[token_column]  # Directly use the token column
+        label_word_counts[label].update(tokens)
 
     # Filter out low-frequency words and associate words with labels
     word_label_map = {}
@@ -32,28 +32,35 @@ def heuristic_predict(df, text_column, label_column, min_freq=2):
                     word_label_map[word] = label
 
     # Predict labels for new texts
-    def predict(text):
+    # Find the most frequent label
+    most_frequent_label = df[label_column].value_counts().idxmax()
+
+    def predict(tokens):
         scores = Counter()
-        for word in text.split():
+        for word in tokens:
             if word in word_label_map:
                 scores[word_label_map[word]] += 1
-        return scores.most_common(1)[0][0] if scores else None
+        if scores:
+            return scores.most_common(1)[0][0]
+        else:
+            # Use most frequent label as a fallback
+            return most_frequent_label
 
     # Apply the prediction function to the dataset
-    df['predicted_label'] = df[text_column].apply(predict)
+    df['predicted_label'] = df[token_column].apply(predict)
     return word_label_map, df
 
 # Example dataset
-df = pd.read_csv('token_nationality_subset.csv')
+df = pd.read_csv('tokens_non_latin_words_split_2_Ambra.csv')
 
 # Predict labels using the heuristic model
-word_label_map, df_with_predictions = heuristic_predict(df, text_column='post', label_column='nationality', min_freq=2)
+word_label_map, df_with_predictions = heuristic_predict(df, token_column='tokens', label_column='nationality', min_freq=1000)
 
 # View results
 print("Word-Label Map:")
 print(word_label_map)
 print("\nPredictions:")
-print(df_with_predictions[['post', 'nationality', 'predicted_label']])
+print(df_with_predictions[['cleaned_text', 'nationality', 'predicted_label']])
 
 
 
