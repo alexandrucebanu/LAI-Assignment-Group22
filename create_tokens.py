@@ -1,8 +1,8 @@
 import pandas as pd
 import re
 
-# Read DataFrame that needs to be tokenized
-df = pd.read_csv('cleaned_no_non_latin_words_split_2_Ambra.csv')
+# Read DataFrame that needs to be preprocessed
+df = pd.read_csv('/Users/alexandrucebanu/Desktop/BACHELOR/YEAR 3/Q2/Language and AI/AAAA/LAI-Assignment-Group22/cleaned_train_split_2_Ambra.csv')
 
 def preprocess(text):
     # Make all text lowercase
@@ -35,17 +35,10 @@ def preprocess(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-# Function to tokenize text
-def tokenize(text):
-    # Match acronyms, contractions, words, and punctuation as separate tokens
-    return re.findall(r'\b(?:[A-Za-z]\.)+[A-Za-z]\b|(?:\w+\'\w+)|\w+|[^\w\s]', text)
-
-# Apply preprocessing and tokenization
+# Apply preprocessing to the 'cleaned_text' column
 df['cleaned_text'] = df['cleaned_text'].apply(preprocess)  # Apply preprocess to 'cleaned_text' column
-df['tokens'] = df['cleaned_text'].apply(tokenize)  # Apply tokenize to 'cleaned_text' column
-df.drop(columns=['post'], inplace=True)
 
-# Save the resulting DataFrame to a new CSV
-df.to_csv('tokens_non_latin_words_split_2_Ambra.csv', index=False)
+# Save the resulting DataFrame to a new CSV without tokens
+df.to_csv('new_cleaned_for_lore.csv', index=False)
 
-print("Processing complete. Cleaned text and tokens have been saved.")
+print("Processing complete. Cleaned text has been saved to 'new_cleaned_Ambra.csv'.")
