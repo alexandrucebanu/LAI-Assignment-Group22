@@ -5,6 +5,7 @@ from sklearn.metrics import classification_report, precision_recall_fscore_suppo
 from sklearn.preprocessing import StandardScaler
 from nltk.corpus import stopwords
 import nltk
+from imblearn.over_sampling import SMOTE
 
 # Download NLTK stopwords
 nltk.download('stopwords')
@@ -49,18 +50,22 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# Step 4: Remove classes with fewer than 2 samples
+# Step 4: Remove classes with fewer than 2 samples before applying SMOTE
 class_counts = y_train.value_counts()
 classes_to_keep = class_counts[class_counts > 1].index
 X_train_filtered = X_train_scaled[np.isin(y_train, classes_to_keep)]
 y_train_filtered = y_train[np.isin(y_train, classes_to_keep)]
 
-# Step 5: Train the logistic regression model on the filtered dataset
-log_reg = LogisticRegression(max_iter=2000, random_state=42, class_weight='balanced')
-log_reg.fit(X_train_filtered, y_train_filtered)
+# Step 5: Apply SMOTE to balance the filtered classes
+smote = SMOTE(random_state=42, k_neighbors=1)
+X_train_smote, y_train_smote = smote.fit_resample(X_train_filtered, y_train_filtered)
 
-# Step 6: Predict and evaluate on the test data
-y_pred_test = log_reg.predict(X_test_scaled)
+# Step 6: Train the logistic regression model on the balanced dataset
+log_reg_smote = LogisticRegression(max_iter=2000, random_state=42, class_weight='balanced')
+log_reg_smote.fit(X_train_smote, y_train_smote)
+
+# Step 7: Predict and evaluate on the test data
+y_pred_test = log_reg_smote.predict(X_test_scaled)
 
 # Calculate evaluation metrics
 precision_test, recall_test, f1_test, _ = precision_recall_fscore_support(y_test, y_pred_test, average='weighted')
