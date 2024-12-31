@@ -5,13 +5,14 @@ from sklearn.metrics import precision_recall_fscore_support
 from sklearn.preprocessing import StandardScaler
 from nltk.corpus import stopwords
 import nltk
+from imblearn.over_sampling import SMOTE
 
 # Download NLTK stopwords
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 
 # Step 1: Load the training and test datasets
-train_data = pd.read_csv('Data/tokenized/tokens_cleaned_train_split_2_Ambra_exp4.csv', encoding="latin1", engine="python",
+train_data = pd.read_csv('Data/tokenized/tokens_cleaned_train_split_2_Ambra.csv', encoding="latin1", engine="python",
                             on_bad_lines="skip")  # Training data
 test_data = pd.read_csv('Data/tokenized/tokens_test_data.csv', encoding="latin1", engine="python", on_bad_lines="skip")  # Testing data
 
@@ -75,12 +76,16 @@ classes_to_keep = unique_classes[class_counts > 1]
 X_train_filtered = X_train_scaled[np.isin(y_train, classes_to_keep)]
 y_train_filtered = y_train[np.isin(y_train, classes_to_keep)]
 
+# Step 5: Apply SMOTE to balance the filtered classes
+smote = SMOTE(random_state=42, k_neighbors=1)
+X_train_smote, y_train_smote = smote.fit_resample(X_train_filtered, y_train_filtered)
+
 # Train the logistic regression model
-lin_reg = LinearRegression()
-lin_reg.fit(X_train_filtered, y_train_filtered)
+lin_reg_smote = LinearRegression()
+lin_reg_smote.fit(X_train_smote, y_train_smote)
 
 # Predict and evaluate on the test data
-y_pred_test = lin_reg.predict(X_test_scaled)
+y_pred_test = lin_reg_smote.predict(X_test_scaled)
 y_pred_test_rounded = np.rint(y_pred_test).astype(int)
 
 # Map predicted labels back to their string representation
@@ -90,7 +95,7 @@ predicted_nationalities = [inverse_label_mapping.get(pred, "Unknown") for pred i
 # Save predictions with original labels to CSV
 output_df = test_data.copy()
 output_df['predicted_nationality'] = predicted_nationalities
-output_df[['tokens', 'nationality', 'predicted_nationality']].to_csv('Output/predictions_exp4.csv', index=False)
+output_df[['tokens', 'nationality', 'predicted_nationality']].to_csv('Output/predictions_with_smote_base_cleaned.csv', index=False)
 
 # Calculate precision, recall, and F1-score (excluding missing labels in y_test)
 valid_indices = y_test != -1  # Exclude rows with -1 in y_test
