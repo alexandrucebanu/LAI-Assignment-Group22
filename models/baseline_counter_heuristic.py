@@ -4,6 +4,7 @@ from sklearn.metrics import f1_score
 import json
 import ast
 
+
 def heuristic_predict(df, token_column, label_column, min_freq=5):
     # Debug: Ensure tokens column is properly formatted
     for idx, tokens in enumerate(df[token_column]):
@@ -89,8 +90,8 @@ def heuristic_predict_single(tokens, word_label_map):
 
 
 # Reload fresh data
-df = pd.read_csv('tokens_split_2_Ambra.csv')
-df_test = pd.read_csv('tokens_test.csv')
+df = pd.read_csv('../tokenised_data/tokens_split_2_Ambra_exp3_2_combined.csv')
+df_test = pd.read_csv('../tokenised_data/tokens_test.csv')
 # Debugging the dataset
 print("Dataset before predictions:")
 print(df.head())
@@ -101,19 +102,18 @@ if 'tokens' in df.columns:
 else:
     raise ValueError("Missing 'tokens' column in the dataset")
 
-
 # Apply the heuristic model on the training data
-word_label_map, df_with_predictions = heuristic_predict(df, token_column='tokens', label_column='nationality', min_freq=10)
+word_label_map, df_with_predictions = heuristic_predict(df, token_column='tokens', label_column='nationality',
+                                                        min_freq=10)
 
 # Save training results
-df_with_predictions.to_csv('heuristic_predictions_train.csv', index=False)
+df_with_predictions.to_csv('../models/predictions/heuristic_predictions_exp3_2_combined.csv', index=False)
 
 # Evaluate on training data
 y_true_train = df_with_predictions['nationality']
 y_pred_train = df_with_predictions['predicted_label']
 f1_train = f1_score(y_true_train, y_pred_train, average='weighted', zero_division=0)
 print(f"F1 Score (Training Data): {f1_train:.2f}")
-
 
 # Apply the model to the test data
 df_test['predicted_label'] = df_test['tokens'].apply(
@@ -127,14 +127,12 @@ f1_test = f1_score(y_true_test, y_pred_test, average='weighted', zero_division=0
 print(f"F1 Score (Test Data): {f1_test:.2f}")
 
 # Save test predictions
-df_test.to_csv('heuristic_predictions_test.csv', index=False)
+df_test.to_csv('../models/predictions/heuristic_predictions_test_exp3_2_combined.csv', index=False)
 
 # Save metrics
 metrics = {
     'f1_score_train': f1_train,
     'f1_score_test': f1_test
 }
-with open('baseline_metrics.json', 'w') as f:
+with open('../models/eval_metrics/baseline_metrics_exp3_2_combined.json', 'w') as f:
     json.dump(metrics, f)
-
-
