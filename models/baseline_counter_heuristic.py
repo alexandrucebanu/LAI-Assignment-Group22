@@ -3,6 +3,52 @@ from collections import defaultdict, Counter
 from sklearn.metrics import f1_score
 import json
 import ast
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTE, RandomOverSampler
+
+
+# Preprocess the tokens column into a numerical format
+def vectorize_tokens(df, token_column):
+    df[token_column] = df[token_column].apply(lambda x: ' '.join(x) if isinstance(x, list) else x)
+    vectorizer = CountVectorizer(tokenizer=lambda x: x.split(), min_df=1)
+    X = vectorizer.fit_transform(df[token_column])
+    return X, vectorizer
+
+# SMOTE Integration
+def apply_smote(X, y, random_state=42, k_neighbors=1):
+    smote = SMOTE(random_state=random_state, k_neighbors=k_neighbors)
+    X_resampled, y_resampled = smote.fit_resample(X, y)
+    return X_resampled, y_resampled
+
+def apply_smote_or_oversampler(X, y, random_state=42, k_neighbors=1):
+    """
+    Apply SMOTE or leave classes as-is if there aren't enough neighbors.
+
+    Args:
+        X (sparse matrix): Feature matrix.
+        y (array-like): Target labels.
+        random_state (int): Random state for reproducibility.
+        k_neighbors (int): Number of neighbors for SMOTE.
+
+    Returns:
+        X_resampled (sparse matrix): Resampled feature matrix.
+        y_resampled (array-like): Resampled target labels.
+    """
+    # Get class distribution
+    class_counts = pd.Series(y).value_counts()
+    min_class_count = class_counts.min()
+
+    # Check if SMOTE can be applied
+    if min_class_count <= k_neighbors:
+        print(f"Warning: Not enough samples for SMOTE. Skipping oversampling and keeping original data.")
+        # Return the original data unchanged
+        return X, y
+    else:
+        smote = SMOTE(random_state=random_state, k_neighbors=k_neighbors)
+        X_resampled, y_resampled = smote.fit_resample(X, y)
+        return X_resampled, y_resampled
+
 
 
 def heuristic_predict(df, token_column, label_column, min_freq=5):
@@ -92,9 +138,32 @@ def heuristic_predict_single(tokens, word_label_map):
 # Reload fresh data
 df = pd.read_csv('../tokenised_data/tokens_split_2_Ambra_exp3_2_combined.csv')
 df_test = pd.read_csv('../tokenised_data/tokens_test.csv')
+
 # Debugging the dataset
 print("Dataset before predictions:")
 print(df.head())
+
+# Parse tokens column as lists
+df['tokens'] = df['tokens'].apply(lambda x: ast.literal_eval(x) if isinstance(x, str) else x)
+
+# Convert tokens to numerical features
+X, vectorizer = vectorize_tokens(df, token_column='tokens')
+y = df['nationality']
+
+# Apply SMOTE
+X_resampled, y_resampled = apply_smote_or_oversampler(X, y)
+
+# Transform resampled X back to tokens (optional, for heuristic model compatibility)
+
+resampled_tokens = []
+for i in range(X_resampled.shape[0]):
+    row_indices = X_resampled[i].indices  # Get non-zero indices in the sparse row
+    tokens = [word for word, idx in vectorizer.vocabulary_.items() if idx in row_indices]
+    resampled_tokens.append(tokens)
+
+# Create a resampled DataFrame
+df_resampled = pd.DataFrame({'tokens': resampled_tokens, 'nationality': y_resampled})
+
 
 # Ensure tokens column is properly parsed as lists if needed
 if 'tokens' in df.columns:
@@ -103,7 +172,7 @@ else:
     raise ValueError("Missing 'tokens' column in the dataset")
 
 # Apply the heuristic model on the training data
-word_label_map, df_with_predictions = heuristic_predict(df, token_column='tokens', label_column='nationality',
+word_label_map, df_with_predictions = heuristic_predict(df_resampled, token_column='tokens', label_column='nationality',
                                                         min_freq=10)
 
 # Save training results
