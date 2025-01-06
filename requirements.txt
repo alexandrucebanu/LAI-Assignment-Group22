@@ -1,0 +1,9 @@
+imbalanced-learn==0.13.0
+langdetect==1.0.9
+language-tool-python==2.8.1
+matplotlib==3.8.2
+nltk==3.9.1
+numpy==2.0.2
+pandas==2.0.1
+scipy==1.15.0
+sklearn==0.0.post12
