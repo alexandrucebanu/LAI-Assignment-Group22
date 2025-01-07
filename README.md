@@ -30,7 +30,7 @@ with 3 columns:
 - nationality
   - Containing the nationality of the author used as label.
 
-There are 2 external datasets for used depollution, which can be downloaded here: 
+There are 2 external datasets used for depollution, which can be downloaded here: 
 - https://www.kaggle.com/datasets/juanmah/world-cities
 - https://assets.publishing.service.gov.uk/media/5a81f5fce5274a2e87dc068d/CH_Nationality_List_20171130_v1.csv/preview.
 
@@ -49,14 +49,14 @@ in create_tokens.py. However, these files do contain different ways of preparing
 1. Create_subset_of_data.py
    - Can be used to create a subset of your data, this may be nice to use for experimentation purposes to reduce runtime.
 3. Depollution.py
-   - Can be used to depollute the data a bit, by removing things like explicit mentions of nationalities.
+   - Can be used to depollute the data a bit, by removing things like explicit mentions of nationalities, countries or cities.
 5. correct grammar.py and/or experiment_3_data_preparation.ipynb and/or experiment_4_data _preparation.ipynb
    - Any of these 3 can be run after running Depollution.py.
    - correct grammar.py corrects the grammar of the text after certain words got removed by other cleaning functions.
    - experiment_3_data_preparation.ipynb replaces foreign words with a special token.
    - experiment_4_data _preparation.ipynb removes all non english posts.
 7. create_tokens.py
-   - Tokenizes the text and can be used to remove some emojis from the text.
+   - Tokenizes the text and can be used to standardise the text further.
 
 ### Models
 The models can all be run after running the files mentioned in the previous section (data preparation). In these files 
