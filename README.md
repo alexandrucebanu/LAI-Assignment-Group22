@@ -37,10 +37,22 @@ There are 2 external datasets used for depollution, which can be downloaded here
 ## Files
 
 ### EDA
-There are 2 EDA files, first of all we have EDA.py, which contains some functions you can use to look for the occurence 
-of certain words or phrases. They can also help finding the context of these by providing the words before and after 
-the specified word or phrase. The second EDA file is visualitations_eds.py, which can be used to see the most used words
-within your dataset.
+This repository includes three EDA files, each with a unique focus for analyzing the original dataset:
+
+1. **`dataset_analysis.ipynb`**  
+   - Performs data cleaning, preprocessing, and summary statistics.  
+   - Visualizes distributions such as posts per nationality and language.  
+   - Implements language detection to understand the language distribution.
+
+2. **`EDA.py`**  
+   - Focuses on pattern and context exploration.  
+   - Includes functions to find specific words or phrases (e.g., "born in") and their surrounding context.  
+   - Uses regex to identify and extract key text patterns efficiently.
+
+3. **`visualizations_eds.py`**  
+   - Specializes in word frequency analysis.  
+   - Uses `CountVectorizer` to identify and plot the most frequently used words in the dataset.  
+   - Provides insights into common textual patterns through visualizations.
 
 ### Data preparation
 These are the files to prepare your data before running the models, here we'll go through all of them in the order which
