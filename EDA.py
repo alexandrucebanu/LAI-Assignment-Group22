@@ -2,6 +2,12 @@ import pandas as pd
 import ast  # To safely evaluate strings as Python expressions
 import re
 
+# ======================================================================================================================
+# INSTRUCTIONS
+#
+# change input csv in line 12
+# ======================================================================================================================
+
 # Import data
 df = pd.read_csv('nationality.csv')
 
@@ -33,10 +39,6 @@ def find_phrase_and_neighbors(tokens, target=('born', 'in'), window=4):
     return neighbors
 
 
-# Apply the function to each row in the DataFrame
-
-import re
-
 def find_phrase_with_regex(post, target='born in', window=4):
     # Build regex pattern
     pattern = (
@@ -51,17 +53,3 @@ def find_phrase_with_regex(post, target='born in', window=4):
         full_match = before + " " + target + match.group(0).split(target)[-1]  # Full context
         results.append(full_match.strip())
     return results
-
-
-
-
-# Apply the regex-based function to each row in the 'post' column
-df['phrase_neighbors'] = df['post'].apply(find_phrase_with_regex, target='born in')
-
-# Display results for rows where the phrase was found
-results = df[df['phrase_neighbors'].apply(len) > 0]
-
-if not results.empty:
-    print(f"The phrase 'born in' appears in {len(results)} rows.", flush=True)
-    for idx, row in results.iterrows():
-        print(f"Row {idx}: {row['phrase_neighbors']}", flush=True)

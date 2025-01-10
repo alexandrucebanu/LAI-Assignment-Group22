@@ -6,14 +6,24 @@ from sklearn.preprocessing import StandardScaler
 from nltk.corpus import stopwords
 import nltk
 
+# ======================================================================================================================
+# INSTRUCTIONS
+#
+# change to csv that contains your train data in line 25
+# change to csv that contains your test data in line 26
+# change column name to column that contains your tokens in line 48 and 49
+# change chosen features in line 52
+# change mapping from labels to integers in lines 58-60
+# change name output csv in line 103
+# ======================================================================================================================
+
 # Download NLTK stopwords
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 
 # Step 1: Load the training and test datasets
-train_data = pd.read_csv('Data/tokenized/tokens_cleaned_train_split_2_Ambra_exp4.csv', encoding="latin1", engine="python",
-                            on_bad_lines="skip")  # Training data
-test_data = pd.read_csv('Data/tokenized/tokens_test_data.csv', encoding="latin1", engine="python", on_bad_lines="skip")  # Testing data
+train_data = pd.read_csv('Data/tokenized/tokens_cleaned_train_split_2_Ambra_exp4.csv')  # Training data
+test_data = pd.read_csv('Data/tokenized/tokens_test_data.csv')  # Testing data
 
 
 # Step 2: Feature engineering function for tokenized data

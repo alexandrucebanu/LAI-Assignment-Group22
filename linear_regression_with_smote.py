@@ -7,14 +7,25 @@ from nltk.corpus import stopwords
 import nltk
 from imblearn.over_sampling import SMOTE
 
+# ======================================================================================================================
+# INSTRUCTIONS
+#
+# change to csv that contains your train data in line 27
+# change to csv that contains your test data in line 28
+# change column name to column that contains your tokens in line 50 and 51
+# change chosen features in line 54
+# change mapping from labels to integers in lines 60-62
+# change name output csv in line 109
+# ======================================================================================================================
+
+
 # Download NLTK stopwords
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 
 # Step 1: Load the training and test datasets
-train_data = pd.read_csv('Data/tokenized/tokens_cleaned_train_split_2_Ambra.csv', encoding="latin1", engine="python",
-                            on_bad_lines="skip")  # Training data
-test_data = pd.read_csv('Data/tokenized/tokens_test_data.csv', encoding="latin1", engine="python", on_bad_lines="skip")  # Testing data
+train_data = pd.read_csv('Data/tokenized/tokens_cleaned_train_split_2_Ambra.csv')  # Training data
+test_data = pd.read_csv('Data/tokenized/tokens_test_data.csv')  # Testing data
 
 
 # Step 2: Feature engineering function for tokenized data

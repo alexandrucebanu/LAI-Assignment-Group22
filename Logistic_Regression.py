@@ -6,6 +6,17 @@ from sklearn.preprocessing import StandardScaler
 from nltk.corpus import stopwords
 import nltk
 
+# ======================================================================================================================
+# INSTRUCTIONS
+#
+# change to csv that contains your train data in line 25
+# change to csv that contains your test data in line 26
+# change column name to column that contains your tokens in line 46 and 47
+# change chosen features in line 50
+# change model parameters in line 70
+# ======================================================================================================================
+
+
 # Download NLTK stopwords
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))

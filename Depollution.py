@@ -3,6 +3,15 @@ import pandas as pd
 import numpy as np
 import re
 
+# ======================================================================================================================
+# INSTRUCTIONS
+#
+# change input csv in line 16
+# change name file with nationality list in line 127
+# change name output csv in line 143
+# ======================================================================================================================
+
+
 # Read data
 df = pd.read_csv('../raw_data/train_data.csv')
 
@@ -114,8 +123,6 @@ def remove_nationalities_cities_countries_and_urls(df_text, text_column, df_nati
     return df_result
 
 
-
-
 # Import data
 df_nationalities = pd.read_csv('../CH_Nationality_List_20171130_v1.csv')
 df_countries = pd.read_csv('../worldcities.csv')
@@ -131,10 +138,6 @@ cleaned_df = remove_nationalities_cities_countries_and_urls(
     df_city=df_countries,
     city_column='city'
 )
-
-# cleaned_df = preprocess(cleaned_df['cleaned_text'])
-
-
 
 
 cleaned_df.to_csv('../clean_data/cleaned_train.csv')
