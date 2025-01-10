@@ -1,5 +1,13 @@
 import pandas as pd
 
+# ======================================================================================================================
+# INSTRUCTIONS
+#
+# change input csv in line 12
+# change fraction of the original data you want to get as subset in line 16
+# change name of output csv in line 18
+# ======================================================================================================================
+
 # Read data
 df = pd.read_csv('token_nationality.csv')
 

@@ -32,7 +32,7 @@ with 3 columns:
 
 There are 2 external datasets used for depollution, which can be downloaded here: 
 - https://www.kaggle.com/datasets/juanmah/world-cities
-- https://assets.publishing.service.gov.uk/media/5a81f5fce5274a2e87dc068d/CH_Nationality_List_20171130_v1.csv/preview.
+- https://assets.publishing.service.gov.uk/media/5a81f5fce5274a2e87dc068d/CH_Nationality_List_20171130_v1.csv/preview
 
 ## Files
 

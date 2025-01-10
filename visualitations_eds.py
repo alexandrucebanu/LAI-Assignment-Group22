@@ -4,6 +4,12 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')  # You can try other backends like 'Qt5Agg'
 
+# ======================================================================================================================
+# INSTRUCTIONS
+#
+# change input csv in line 47
+# change function parameters in line 50
+# ======================================================================================================================
 
 def plot_word_frequencies(data, text_column, top_n=20):
     """

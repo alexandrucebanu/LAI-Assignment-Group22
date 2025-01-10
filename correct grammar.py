@@ -3,6 +3,13 @@ from langdetect import detect, DetectorFactory
 from langdetect.lang_detect_exception import LangDetectException
 import language_tool_python
 
+# ======================================================================================================================
+# INSTRUCTIONS
+#
+# change input csv in line 24
+# change name of output csv in line 48
+# ======================================================================================================================
+
 # Seed for reproducibility
 DetectorFactory.seed = 0
 

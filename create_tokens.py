@@ -1,6 +1,14 @@
 import pandas as pd
 import re
 
+# ======================================================================================================================
+# INSTRUCTIONS
+#
+# change input csv in line 13
+# change column name to apply tokenization to in line 26 and 27
+# change name output csv in line 30
+# ======================================================================================================================
+
 # Read DataFrame that needs to be tokenized
 df = pd.read_csv('cleaned_train_split_2_Ambra_exp4.csv')
 
@@ -15,7 +23,6 @@ def tokenize(text):
     return re.findall(r'\b(?:[A-Za-z]\.)+[A-Za-z]\b|(?:\w+\'\w+)|\w+|[^\w\s]', text)
 
 # Apply preprocessing and tokenization
-# df['cleaned_text'] = df['cleaned_text'].apply(preprocess)  # Apply preprocess to 'cleaned_text' column
 df['tokens'] = df['post'].apply(tokenize)  # Apply tokenize to 'cleaned_text' column
 df.drop(columns=['post'], inplace=True)
 
